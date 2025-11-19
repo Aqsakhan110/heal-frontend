@@ -7,6 +7,7 @@ import { ObjectId } from "mongodb";
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
+
 ) {
   try {
     const { db } = await connectToDatabase();

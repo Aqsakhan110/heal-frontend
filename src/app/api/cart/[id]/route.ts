@@ -6,7 +6,8 @@ import { ObjectId } from "mongodb";
 // ✅ Delete item
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+ { params }: { params: { id: string } }
+
 ) {
   const { db } = await connectToDatabase();
 
