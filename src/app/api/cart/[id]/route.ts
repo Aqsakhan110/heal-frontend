@@ -1,41 +1,4 @@
 
-
-
-// import { NextResponse } from "next/server";
-// import { connectToDatabase } from "@/lib/mongodb";
-// import { ObjectId } from "mongodb";
-
-// export async function DELETE(
-//   req: Request,
-//   { params }: { params: { id: string } }
-// ) {
-//   const { db } = await connectToDatabase();
-
-//   try {
-//     await db.collection("cart").deleteOne({ _id: new ObjectId(params.id) });
-//     return NextResponse.json({ success: true });
-//   } catch (error) {
-//     return NextResponse.json({ success: false }, { status: 500 });
-//   }
-// }
-
-// export async function PATCH(
-//   req: Request,
-//   { params }: { params: { id: string } }
-// ) {
-//   const { db } = await connectToDatabase();
-//   const { qty } = await req.json();
-
-//   try {
-//     await db.collection("cart").updateOne(
-//       { _id: new ObjectId(params.id) },
-//       { $set: { qty } }
-//     );
-//     return NextResponse.json({ success: true });
-//   } catch (error) {
-//     return NextResponse.json({ success: false }, { status: 500 });
-//   }
-// }
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
