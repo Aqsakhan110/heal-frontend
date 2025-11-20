@@ -1,18 +1,22 @@
-
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
 // ✅ Delete item
 export async function DELETE(
-  req: Request,
- { params }: { params: { id: string } }
-
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   const { db } = await connectToDatabase();
 
   try {
-    await db.collection("cart").deleteOne({ _id: new ObjectId(params.id) });
+    const { id } = context.params;
+
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
+    }
+
+    await db.collection("cart").deleteOne({ _id: new ObjectId(id) });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Delete error:", error);
@@ -22,15 +26,21 @@ export async function DELETE(
 
 // ✅ Update quantity
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   const { db } = await connectToDatabase();
-  const { qty } = await req.json();
+  const { id } = context.params;
 
   try {
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
+    }
+
+    const { qty } = await req.json();
+
     const result = await db.collection("cart").updateOne(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(id) },
       { $set: { qty } }
     );
 
