@@ -23,7 +23,7 @@ export default function SuccessPage() {
         Thank you {user?.username || user?.firstName || "Customer"} for purchasing!
       </p>
       <p className="mt-2 text-gray-600">
-        Your Clerk user ID is: {user?.id}
+        Your user ID is: {user?.id}
       </p>
       <p className="mt-4 text-sm text-gray-500">
         You can continue browsing medicines or check your orders.
