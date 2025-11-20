@@ -8,9 +8,9 @@ export default function HomePage() {
     return (
         <main className="bg-white min-h-screen text-gray-900 px-4 sm:px-8 lg:px-16">
             <section
-  id="hero"
-  className="pt-8 sm:pt-12 lg:pt-16 pb-12 flex flex-col md:flex-row items-center gap-12 max-w-7xl mx-auto"
->
+                id="hero"
+                className="pt-8 sm:pt-12 lg:pt-16 pb-12 flex flex-col md:flex-row items-center gap-12 max-w-7xl mx-auto"
+            >
 
 
                 {/* Left Side */}
@@ -87,43 +87,42 @@ export default function HomePage() {
             </section>
 
             {/* FEATURE CATEGORIES */}
-<section className="pt-6 sm:pt-8 lg:pt-12 pb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-
+            <section className="pt-6 sm:pt-8 lg:pt-12 pb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { title: "Medicines", img: "/assets/med1.jpg" },
-                    { title: "Doctors", img: "/assets/doctor1.jpg" },
-                    { title: "Pharmacies", img: "/assets/doctor2.jpg" },
-                    { title: "Reorders", img: "/assets/med2.jpg" },
+                    { title: "Medicines", img: "/assets/med1.jpg", href: "/medicines" },
+                    { title: "Doctors", img: "/assets/doctor1.jpg", href: "/doctors" },
+                    { title: "Reorders", img: "/assets/med2.jpg", href: "/medicines" },
+                    { title: "Healthcare Team", img: "/assets/doctor2.jpg", href: "/doctors" }, // pharmacy → medicines
+                     // you can create /reorders page
                 ].map((item, idx) => (
-                    <motion.div
-                        key={item.title}
-                        suppressHydrationWarning
-                        initial={{ opacity: 0, y: 60 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.2, type: "spring" }}
-                        whileHover={{ scale: 1.08, rotate: 1 }}
-                        viewport={{ once: true }}
-                        className="rounded-xl overflow-hidden shadow-md bg-white flex flex-col h-auto sm:h-[280px] lg:h-[360px]"
-
-                    >
-                        <Image
-  src={item.img}
-  alt={item.title}
-  loading="eager" 
-  width={400}
-  height={250}
-  className="w-full aspect-[4/3] object-cover object-center"
-
-
-/>
-
-                        <div className="p-4 text-center">
-                            <h3 className="text-base sm:text-lg font-bold text-emerald-700">{item.title}</h3>
-                        </div>
-                    </motion.div>
+                    <Link key={item.title} href={item.href} className="block">
+                        <motion.div
+                            suppressHydrationWarning
+                            initial={{ opacity: 0, y: 60 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.2, type: "spring" }}
+                            whileHover={{ scale: 1.08, rotate: 1 }}
+                            viewport={{ once: true }}
+                            className="rounded-xl overflow-hidden shadow-md bg-white flex flex-col h-auto sm:h-[280px] lg:h-[360px] cursor-pointer"
+                        >
+                            <Image
+                                src={item.img}
+                                alt={item.title}
+                                loading="eager"
+                                width={400}
+                                height={250}
+                                className="w-full aspect-[4/3] object-cover object-center"
+                            />
+                            <div className="p-4 text-center">
+                                <h3 className="text-base sm:text-lg font-bold text-emerald-700">
+                                    {item.title}
+                                </h3>
+                            </div>
+                        </motion.div>
+                    </Link>
                 ))}
             </section>
+
 
             {/* ABOUT SECTION */}
             <section
