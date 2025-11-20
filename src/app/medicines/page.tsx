@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useUser, SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
@@ -14,10 +14,11 @@ type Medicine = {
   description: string;
   price: number;
   image: string;
-  stock?: number; // ✅ optional stock field
+  stock?: number;
 };
 
-export default function MedicinesPage() {
+// ✅ Child component with useSearchParams
+function MedicinesPageContent() {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [visibleCount, setVisibleCount] = useState(8);
   const { user } = useUser();
@@ -32,10 +33,9 @@ export default function MedicinesPage() {
         const res = await fetch("/api/medicines");
         const data = await res.json();
 
-        // ✅ Mark 4th, 6th, and 12th items as unavailable
         const withStock = (Array.isArray(data) ? data : []).map(
           (m: Medicine, idx: number) => {
-            const position = idx + 1; // human-readable index
+            const position = idx + 1;
             const unavailable = [4, 6, 12];
             return {
               ...m,
@@ -86,16 +86,22 @@ export default function MedicinesPage() {
       }),
     });
 
-    addItem();
+    // ✅ Pass proper CartItem object
+    addItem({
+      id: medicine._id,
+      name: medicine.name,
+      price: medicine.price,
+      quantity: 1,
+      image: medicine.image,
+    });
+
     toast.success(`${medicine.name} added to cart!`);
   };
 
   return (
     <>
       <SignedIn>
-        {/* ✅ Reduced top gap */}
         <motion.div className="pt-6 sm:pt-8 lg:pt-10 max-w-7xl mx-auto px-4">
-          {/* Heading */}
           <motion.h1 className="text-3xl sm:text-4xl font-extrabold text-emerald-700 text-center">
             Medicines
           </motion.h1>
@@ -103,7 +109,6 @@ export default function MedicinesPage() {
             Browse authentic medicines from trusted pharmacies. Add to cart if available.
           </p>
 
-          {/* Grid */}
           <motion.div className="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 items-stretch">
             {filteredMedicines.slice(0, visibleCount).map((medicine: Medicine) => (
               <motion.div
@@ -123,7 +128,6 @@ export default function MedicinesPage() {
                   {medicine.description}
                 </p>
 
-                {/* Stock Status */}
                 {medicine.stock && medicine.stock > 0 ? (
                   <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded-full mb-2">
                     In Stock
@@ -151,7 +155,6 @@ export default function MedicinesPage() {
             ))}
           </motion.div>
 
-          {/* Load More / Load Less */}
           <div className="flex justify-center mt-8 gap-4 pb-14">
             {visibleCount < filteredMedicines.length && (
               <button
@@ -173,10 +176,18 @@ export default function MedicinesPage() {
         </motion.div>
       </SignedIn>
 
-      {/* Force login before viewing */}
       <SignedOut>
         <RedirectToSignIn redirectUrl="/medicines" />
       </SignedOut>
     </>
+  );
+}
+
+// ✅ Suspense wrapper
+export default function MedicinesPage() {
+  return (
+    <Suspense fallback={<div>Loading medicines...</div>}>
+      <MedicinesPageContent />
+    </Suspense>
   );
 }

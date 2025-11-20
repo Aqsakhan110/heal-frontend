@@ -1,13 +1,9 @@
-// 
-
-
-
-
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
-// GET → fetch orders for a user
-export async function GET(req: Request) {
+// ✅ GET → fetch orders for a user
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
 
@@ -21,7 +17,7 @@ export async function GET(req: Request) {
 
     // ✅ format _id to string for frontend
     const formattedOrders = orders.map((order) => ({
-      _id: order._id.toString(),
+      _id: order._id instanceof ObjectId ? order._id.toString() : order._id,
       userId: order.userId,
       items: order.items,
       total: order.total,
@@ -37,8 +33,8 @@ export async function GET(req: Request) {
   }
 }
 
-// POST → place new order
-export async function POST(req: Request) {
+// ✅ POST → place new order
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { userId, items, total, method = "payfast" } = body;

@@ -5,19 +5,18 @@ import { ObjectId } from "mongodb";
 // GET one appointment by ID
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   try {
     const { db } = await connectToDatabase();
-    const { id } = context.params;
 
     if (!ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid appointment ID" }, { status: 400 });
     }
 
-    const appointment = await db
-      .collection("appointments")
-      .findOne({ _id: new ObjectId(id) });
+    const appointment = await db.collection("appointments").findOne({ _id: new ObjectId(id) });
 
     if (!appointment) {
       return NextResponse.json({ error: "Appointment not found" }, { status: 404 });
@@ -33,19 +32,18 @@ export async function GET(
 // DELETE one appointment by ID
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   try {
     const { db } = await connectToDatabase();
-    const { id } = context.params;
 
     if (!ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid appointment ID" }, { status: 400 });
     }
 
-    const result = await db
-      .collection("appointments")
-      .deleteOne({ _id: new ObjectId(id) });
+    const result = await db.collection("appointments").deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Appointment not found" }, { status: 404 });
