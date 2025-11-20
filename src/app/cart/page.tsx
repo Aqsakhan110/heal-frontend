@@ -1,3 +1,6 @@
+// 
+
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,12 +9,12 @@ import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import { FaTrashAlt } from "react-icons/fa";
-import { useRouter } from "next/navigation";
+import { startCheckout } from "@/lib/checkout";
 
 type CartItemFromDB = {
   _id: string;
   name: string;
-  price: number;
+  price: number; // PKR (whole rupees) in your DB
   qty: number;
   image: string;
 };
@@ -21,7 +24,7 @@ export default function CartPage() {
   const { removeItem, setCartItemsFromDB } = useCart();
   const [items, setItems] = useState<CartItemFromDB[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [checkingOut, setCheckingOut] = useState(false);
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -31,7 +34,6 @@ export default function CartPage() {
         const data = await res.json();
         if (Array.isArray(data)) {
           setItems(data);
-          // ✅ sync CartContext directly with DB items
           setCartItemsFromDB(
             data.map((item: CartItemFromDB) => ({
               id: item._id || "",
@@ -57,8 +59,8 @@ export default function CartPage() {
     try {
       const res = await fetch(`/api/cart/${id}`, { method: "DELETE" });
       if (res.ok) {
-        setItems(prev => prev.filter(item => item._id !== id)); // ✅ safe update
-        removeItem(id); // ✅ sync context
+        setItems(prev => prev.filter(item => item._id !== id));
+        removeItem(id);
         toast.success("Item removed from cart.");
       } else {
         toast.error("❌ Failed to delete item.");
@@ -68,17 +70,14 @@ export default function CartPage() {
     }
   };
 
-  // ✅ Update quantity with + / - buttons
   const updateQuantity = async (id: string, newQty: number) => {
-    if (newQty < 1) return; // ✅ prevent going below 1
-
+    if (newQty < 1) return;
     try {
       const res = await fetch(`/api/cart/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ qty: newQty }),
       });
-
       if (res.ok) {
         setItems(prev =>
           prev.map(item =>
@@ -102,6 +101,36 @@ export default function CartPage() {
   const tax = Math.round(subtotal * 0.05);
   const grandTotal = subtotal + shipping + tax;
 
+  const handleCheckout = async () => {
+    try {
+      if (!user?.id) {
+        toast.error("Please sign in to checkout.");
+        return;
+      }
+      if (items.length === 0) {
+        toast.error("Your cart is empty.");
+        return;
+      }
+      setCheckingOut(true);
+
+      // If using USD test mode: convert PKR totals to USD cents (example rate).
+      // For now we pass per-item values. If your backend expects cents: multiply by 100.
+      await startCheckout(
+        items.map(item => ({
+          name: item.name,
+          // If currency is USD in backend: cents = PKR to USD (optional) then *100.
+          // If you keep prices as PKR but still use USD in test, use a mock conversion to avoid $500 charges.
+          // Simplest dev approach: treat `price` as cents in USD test mode:
+          price: item.price, // if your backend expects cents, change to item.price * 100
+          quantity: item.qty,
+        }))
+      );
+    } catch (e: any) {
+      toast.error(e.message || "Checkout failed.");
+      setCheckingOut(false);
+    }
+  };
+
   if (loading) return <p className="pt-24 text-center">Loading cart...</p>;
 
   return (
@@ -113,7 +142,6 @@ export default function CartPage() {
     >
       <h1 className="text-3xl font-bold text-emerald-700 mb-8">Shopping Cart</h1>
 
-      {/* Cart Items */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Cart Items</h2>
         {items.length === 0 ? (
@@ -133,7 +161,6 @@ export default function CartPage() {
                 />
                 <div>
                   <p className="font-medium">{item.name}</p>
-                  {/* ✅ Quantity controls */}
                   <div className="flex items-center gap-2 mt-1">
                     <button
                       onClick={() => updateQuantity(item._id, item.qty - 1)}
@@ -170,7 +197,6 @@ export default function CartPage() {
         )}
       </div>
 
-      {/* Summary */}
       {items.length > 0 && (
         <div className="bg-white shadow-md rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Summary</h2>
@@ -192,10 +218,11 @@ export default function CartPage() {
           </div>
 
           <button
-            onClick={() => router.push("/checkout")}
-            className="mt-6 w-full bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 transition"
+            onClick={handleCheckout}
+            disabled={checkingOut}
+            className="mt-6 w-full bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Proceed to Checkout
+            {checkingOut ? "Redirecting to Stripe..." : "Proceed to Checkout"}
           </button>
         </div>
       )}

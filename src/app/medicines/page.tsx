@@ -103,8 +103,9 @@ function MedicinesPageContent() {
       <SignedIn>
         <motion.div className="pt-6 sm:pt-8 lg:pt-10 max-w-7xl mx-auto px-4">
           <motion.h1 className="text-3xl sm:text-4xl font-extrabold text-emerald-700 text-center">
-            Medicines
+            Shop Trusted Medicines Online
           </motion.h1>
+          <br></br>
           <p className="mt-2 text-center text-gray-600 max-w-2xl mx-auto">
             Browse authentic medicines from trusted pharmacies. Add to cart if available.
           </p>
