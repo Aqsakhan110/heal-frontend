@@ -10,6 +10,7 @@ const footerLinks = [
   { name: "Privacy Policy", href: "/privacy" },
   { name: "Terms of Service", href: "/terms" },
   { name: "Support", href: "/support" },
+  { name: "Track Order", href: "/track-order" }, // ✅ Added new link
 ];
 
 export default function Footer() {

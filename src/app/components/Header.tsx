@@ -19,6 +19,7 @@ const navItems = [
   { name: "Doctors", href: "/doctors" },
   { name: "Medicines", href: "/medicines" },
   { name: "Contact", href: "/#contact" },
+   
 ];
 
 export default function Header() {
