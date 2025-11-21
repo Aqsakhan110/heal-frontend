@@ -16,9 +16,9 @@ import Fuse from "fuse.js";
 const navItems = [
   { name: "Home", href: "/" },
   { name: "About", href: "/#about" },
-  { name: "Doc", href: "/doctors" },
+  { name: "Doctors", href: "/doctors" },
   { name: "Medicines", href: "/medicines" },
-  { name: "Contact", href: "/#contact" },
+  { name: "Contact us", href: "/#contact" },
    
 ];
 
