@@ -1,12 +1,16 @@
-// 
+
+
 import { NextResponse, NextRequest } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-// ✅ DELETE: Remove item from cart by _id and userId
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+// ✅ DELETE: Remove one cart item by its _id
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }   // 👈 params is async
+) {
   const { db } = await connectToDatabase();
-  const { id } = context.params;
+  const { id } = await context.params;           // 👈 await params
   const userId = req.nextUrl.searchParams.get("userId");
 
   try {
@@ -33,10 +37,13 @@ export async function DELETE(req: NextRequest, context: { params: { id: string }
   }
 }
 
-// ✅ PATCH: Update quantity
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
+// ✅ PATCH: Update quantity of one specific cart row
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }   // 👈 params is async
+) {
   const { db } = await connectToDatabase();
-  const { id } = context.params;
+  const { id } = await context.params;           // 👈 await params
   const userId = req.nextUrl.searchParams.get("userId");
 
   try {
@@ -55,7 +62,7 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
     );
 
     if (result.modifiedCount === 1) {
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true }, { status: 200 });
     } else {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
@@ -65,7 +72,10 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
   }
 }
 
-// ✅ Optional: Support PUT as alias for PATCH
-export async function PUT(req: NextRequest, context: { params: { id: string } }) {
+// ✅ PUT: Alias for PATCH
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }   // 👈 params is async
+) {
   return PATCH(req, context);
 }
