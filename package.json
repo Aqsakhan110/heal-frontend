@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.35.1",
     "@heroicons/react": "^2.2.0",
+    "@netlify/next": "^1.4.9",
     "@stripe/stripe-js": "^8.5.2",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.24",
