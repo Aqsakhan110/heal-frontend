@@ -1,7 +1,6 @@
-// 
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Public routes
+// Public frontend routes (no login needed)
 const isPublicRoute = createRouteMatcher([
   "/",
   "/auth/login(.*)",
@@ -10,38 +9,40 @@ const isPublicRoute = createRouteMatcher([
   "/contact",
 ]);
 
-// Protected routes
+// Protected frontend routes (login required)
 const isProtectedRoute = createRouteMatcher([
   "/cart(.*)",
   "/orders(.*)",
-  "/appointments(.*)", // ✅ only protected now
+  "/appointments(.*)",
   "/products(.*)",
   "/doctors(.*)",
   "/dashboard(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Do not protect public pages
   if (isPublicRoute(req)) return;
 
-  if (isProtectedRoute(req)) {
+  // Protect only frontend pages — NOT `/api/**`
+  if (isProtectedRoute(req) && !req.nextUrl.pathname.startsWith("/api")) {
     const session = await auth.protect();
     const userId = session.userId;
 
-    // Restrict dashboard to a specific user (temporary)
+    // Optional dashboard restriction
     if (
       req.nextUrl.pathname.startsWith("/dashboard") &&
       userId !== "user_35Y4gPQomnQtk8KFTS3zJg3jPN7"
     ) {
       return new Response("🚫 Access denied", { status: 403 });
-      // Or redirect:
-      // return Response.redirect(new URL("/", req.url));
     }
   }
 });
 
+// ⛔ Stop middleware from running on `/api/**`
+// 🔥 This is the KEY FIX that solves 405 for your cart
 export const config = {
   matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js|png|jpg|svg|ico|woff2?|csv|docx?|xlsx?|zip)).*)",
-    "/(api|trpc)(.*)",
+    // Apply middleware only to frontend routes
+    "/((?!api|_next|.*\\..*).*)",
   ],
 };
