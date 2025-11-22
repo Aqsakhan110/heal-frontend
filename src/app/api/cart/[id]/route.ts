@@ -1,3 +1,4 @@
+export const runtime = "nodejs";
 import { NextResponse, NextRequest } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
