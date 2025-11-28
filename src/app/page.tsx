@@ -265,13 +265,15 @@ export default function HomePage() {
                     className="flex-1 flex justify-center order-2 md:order-1 p-4"
                 >
                     <video
-                        src="/Contact.mp4"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        className="w-64 h-64 sm:w-80 sm:h-80 rounded-3xl shadow-2xl border-4 border-teal-400/50"
-                    />
+  src="/contact.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  preload="auto"   // Preloads video
+  className="w-64 h-64 sm:w-80 sm:h-80 rounded-3xl shadow-2xl border-4 border-teal-400/50"
+/>
+
                 </motion.div>
 
                 {/* Text */}
