@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     // ✅ Check if reply contains CONFIRM
     if (emailBody.toLowerCase().includes("confirm")) {
-      const { db } = await connectToDatabase();
+      const db  = await connectToDatabase();
 
       const order = await db.collection("orders").findOne({
         email: fromEmail,

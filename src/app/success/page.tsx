@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useCart } from "../context/CartContext";
 import { useUser } from "@clerk/nextjs";
+import Link from "next/link"; // ✅ import Link for navigation
 
 export default function SuccessPage() {
   const { clearCart } = useCart();
@@ -34,6 +35,16 @@ export default function SuccessPage() {
         <p className="mt-6 text-sm text-gray-500">
           You can continue browsing medicines or check your orders anytime.
         </p>
+
+        {/* ✅ Track Order Link */}
+        <div className="mt-6">
+          <Link
+            href="/track-order"
+            className="inline-block bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition duration-200"
+          >
+            Track Your Order
+          </Link>
+        </div>
       </div>
     </main>
   );

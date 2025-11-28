@@ -14,7 +14,7 @@ export async function GET(
   }
 
   try {
-    const { db } = await connectToDatabase();
+    const db  = await connectToDatabase();
     const order = await db.collection("orders").findOne({ _id: new ObjectId(id) });
 
     if (!order) {
