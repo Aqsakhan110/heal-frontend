@@ -81,7 +81,7 @@ import { ObjectId } from "mongodb";
 // GET — fetch cart items for a user
 export async function GET(req: NextRequest) {
   try {
-    const { db } = await connectToDatabase();
+    const db  = await connectToDatabase();
     const userId = req.nextUrl.searchParams.get("userId");
 
     if (!userId) return NextResponse.json([], { status: 200 });
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
 // POST — add new item
 export async function POST(req: NextRequest) {
   try {
-    const { db } = await connectToDatabase();
+    const db  = await connectToDatabase();
     const body = await req.json();
     const { userId, medicineId, name, price, image } = body;
 
@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
 // PATCH — update quantity
 export async function PATCH(req: NextRequest) {
   try {
-    const { db } = await connectToDatabase();
+    const db  = await connectToDatabase();
     const body = await req.json();
     const { _id, qty, userId } = body;
 
@@ -196,7 +196,7 @@ export async function PATCH(req: NextRequest) {
 // DELETE — remove item
 export async function DELETE(req: NextRequest) {
   try {
-    const { db } = await connectToDatabase();
+    const db  = await connectToDatabase();
     const { searchParams } = req.nextUrl;
     const _id = searchParams.get("_id");
     const userId = searchParams.get("userId");

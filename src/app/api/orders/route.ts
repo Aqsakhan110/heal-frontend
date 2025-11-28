@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const { db } = await connectToDatabase();
+    const db  = await connectToDatabase();
     const orders = await db.collection("orders").find({ userId }).toArray();
 
     // ✅ format _id to string for frontend
@@ -39,11 +39,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { userId, items, total, method = "payfast" } = body;
 
-    if (!userId || !items || items.length === 0) {
+    if (!userId || !items || items.length === 0 || total === undefined) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const { db } = await connectToDatabase();
+    const db  = await connectToDatabase();
 
     // ✅ Save order with full schema
     const result = await db.collection("orders").insertOne({
@@ -51,14 +51,14 @@ export async function POST(req: NextRequest) {
       items,
       total,
       method, // e.g. "payfast"
-      status: "pending", // default until webhook confirms
+      status: "pending", // default until confirmed
       createdAt: new Date(),
     });
 
     // ✅ Clear cart after checkout
     await db.collection("cart").deleteMany({ userId });
 
-    return NextResponse.json({ success: true, id: result.insertedId.toString() });
+    return NextResponse.json({ success: true, id: result.insertedId.toString() }, { status: 201 });
   } catch (err) {
     console.error("❌ Error placing order:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

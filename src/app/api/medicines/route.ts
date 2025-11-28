@@ -1,89 +1,4 @@
 
-
-import { NextResponse } from "next/server";
-import { connectToDatabase } from "../../../lib/mongodb";
-import { ObjectId } from "mongodb";
-
-// GET → fetch all medicines
-export async function GET() {
-  try {
-    const { db } = await connectToDatabase();
-    const medicines = await db.collection("medicines").find().toArray();
-    return NextResponse.json(medicines);
-  } catch (err) {
-    console.error("❌ Error fetching medicines:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
-  }
-}
-
-// POST → add new medicine (admin only)
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { name, description, price, image } = body;
-
-    if (!name || !price) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    const { db } = await connectToDatabase();
-    const result = await db.collection("medicines").insertOne({
-      name,
-      description,
-      price,
-      image,
-      createdAt: new Date(),
-    });
-
-    return NextResponse.json({ success: true, id: result.insertedId });
-  } catch (err) {
-    console.error("❌ Error adding medicine:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
-  }
-}
-
-// DELETE → remove medicine by _id
-export async function DELETE(req: Request) {
-  try {
-    const body = await req.json();
-    const { _id } = body;
-
-    if (!_id) {
-      return NextResponse.json({ error: "Missing _id" }, { status: 400 });
-    }
-
-    const { db } = await connectToDatabase();
-    await db.collection("medicines").deleteOne({ _id: new ObjectId(_id) });
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("❌ Error deleting medicine:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
-  }
-}
-
-// PUT → update medicine image by _id
-export async function PUT(req: Request) {
-  try {
-    const body = await req.json();
-    const { _id, newImage } = body;
-
-    if (!_id || !newImage) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    const { db } = await connectToDatabase();
-    await db.collection("medicines").updateOne(
-      { _id: new ObjectId(_id) },
-      { $set: { image: newImage } }
-    );
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("❌ Error updating medicine:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
-  }
-}
 // import { NextResponse } from "next/server";
 // import { connectToDatabase } from "../../../lib/mongodb";
 // import { ObjectId } from "mongodb";
@@ -192,3 +107,17 @@ export async function PUT(req: Request) {
 //     return NextResponse.json({ error: "Server error" }, { status: 500 });
 //   }
 // }
+
+import { NextRequest, NextResponse } from "next/server";
+import { connectToDatabase } from "@/lib/mongodb";
+
+export async function GET(req: NextRequest) {
+  try {
+    const db = await connectToDatabase();
+    const medicines = await db.collection("medicines").find({}).toArray();
+    return NextResponse.json(medicines);
+  } catch (error) {
+    console.error("Error fetching medicines:", error);
+    return NextResponse.json({ error: "Failed to fetch medicines" }, { status: 500 });
+  }
+}

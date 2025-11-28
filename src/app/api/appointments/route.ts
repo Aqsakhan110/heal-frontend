@@ -1,10 +1,8 @@
-
-// File: src/app/api/appointments/route.ts
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "../../../lib/mongodb";
+import { connectToDatabase } from "@/lib/mongodb";
 import nodemailer from "nodemailer";
 
-const clinicEmail = "aqsakhan984@gmail.com";
+const clinicEmail = "aqsakhan9849@gmail.com";
 const clinicPhone = "+92-341-0233773";
 
 export async function POST(req: Request) {
@@ -12,13 +10,16 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { patientName, email, phone, doctor, specialty, date, time } = body;
 
-    // ✅ Validate required fields
+    // Validate fields
     if (!patientName || !email || !phone || !doctor || !date || !time) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    // ✅ Save appointment in MongoDB
-    const { db } = await connectToDatabase();
+    // ✅ Save to MongoDB
+    const db = await connectToDatabase();
     const result = await db.collection("appointments").insertOne({
       patientName,
       email,
@@ -32,39 +33,43 @@ export async function POST(req: Request) {
 
     console.log("✅ Appointment saved:", result.insertedId);
 
-    // ✅ Send confirmation email
+    // ✅ Send Email via Gmail SMTP
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_USER, // your Gmail
+        pass: process.env.SMTP_PASS, // app password
       },
     });
 
     await transporter.sendMail({
       from: `"HealSync" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: "Appointment Confirmation - HealSync",
+      to: email, // patient email
+      subject: "Your HealSync Appointment Request",
       html: `
-        <h2 style="color:#059669;">Thank you for booking with HealSync</h2>
+        <h2>Appointment Request Received 🩺</h2>
         <p>Dear ${patientName},</p>
-        <p>Your appointment with <strong>${doctor}</strong> (${specialty}) 
-        on <strong>${date}</strong> at <strong>${time}</strong> has been successfully booked.</p>
-        <p>Contact us for payment or queries:</p>
-        <ul>
-          <li>Email: ${clinicEmail}</li>
-          <li>Phone: ${clinicPhone}</li>
-        </ul>
+        <p>Your appointment request with <b>${doctor}</b> (${specialty}) has been received.</p>
+        <p><b>Date:</b> ${date}</p>
+        <p><b>Time:</b> ${time}</p>
+        <p>We are processing your request and will inform you shortly.</p>
+        <hr/>
+        <p>For payment and queries, please contact:</p>
+        <p>Email: <a href="mailto:${clinicEmail}">${clinicEmail}</a></p>
+        <p>Phone: ${clinicPhone}</p>
         <br/>
-        <p style="color:#059669;">— HealSync Team</p>
+        <p>Thank you for choosing HealSync!</p>
       `,
     });
 
-    console.log("📧 Confirmation email sent to:", email);
+    console.log("📧 Email sent to:", email);
 
-    return NextResponse.json({ success: true, id: result.insertedId });
+    return NextResponse.json({
+      success: true,
+      id: result.insertedId,
+    });
   } catch (err: any) {
-    console.error("❌ Error booking appointment:", err.message, err);
+    console.error("❌ Error booking appointment:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
