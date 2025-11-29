@@ -1,24 +1,49 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Make sure you have these in your .env file
+// GMAIL_USER=yourstore@gmail.com
+// GMAIL_APP_PASS=your_app_password
 
 export async function POST(req: Request) {
   try {
     const { email, name, total } = await req.json();
 
-    const response = await resend.emails.send({
-      from: "onboarding@resend.dev", // ✅ use default domain
-      to: email,
-      subject: "Confirm Your Healsycn Order",
-      html: `
-        <p>Thank you, ${name}, for choosing Healsycn.</p>
-        <p>Your total bill is PKR ${total}.</p>
-        <p>Please reply with <strong>CONFIRM</strong> to confirm your order.</p>
-      `,
+    if (!email || !name || !total) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // 1️⃣ Create Nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASS,
+      },
     });
 
-    console.log("Resend response:", response);
+    // 2️⃣ Email content
+    const mailOptions = {
+      from: `"Healsycn Store" <${process.env.GMAIL_USER}>`,
+      to: email, // dynamically sends to the buyer
+      subject: "Order Confirmation - Healsycn",
+      html: `
+        <h2>Thank you, ${name}!</h2>
+        <p>Your order has been received.</p>
+        <p><strong>Total:</strong> PKR ${total}</p>
+        <p>Please reply with <strong>CONFIRM</strong> to confirm your order.</p>
+        <p>We appreciate your business!</p>
+      `,
+    };
+
+    // 3️⃣ Send email
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("Email sent:", info.messageId, "to", email);
+
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error("Email error:", err);

@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.35.1",
     "@heroicons/react": "^2.2.0",
+    "@hookform/resolvers": "^5.2.2",
     "@netlify/next": "^1.4.9",
     "@stripe/stripe-js": "^8.5.2",
     "dotenv": "^17.2.3",
@@ -20,7 +21,7 @@
     "mongodb": "^7.0.0",
     "mongoose": "^8.19.4",
     "next": "^15.5.6",
-    "nodemailer": "^7.0.10",
+    "nodemailer": "^7.0.11",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.66.0",
@@ -28,6 +29,7 @@
     "react-icons": "^5.5.0",
     "resend": "^6.4.2",
     "stripe": "^20.0.0",
+    "zod": "^4.1.13",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
